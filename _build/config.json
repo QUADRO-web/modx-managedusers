@@ -1,0 +1,51 @@
+{
+	"name": "ManagedUsers",
+	"lowCaseName": "managedusers",
+	"description": "Manages Users of a specific user group.",
+	"author": "Jan Dähne",
+	"version": "1.0.0-pl",
+	"package": {
+		"elements": {},
+	    "systemSettings": [
+			{
+				"key": "usergroup",
+				"area": "system",
+				"value": "",
+				"type": "modx-combo-usergroup"
+			},
+			{
+				"key": "role",
+				"area": "system",
+				"value": "1",
+				"type": "modx-combo-usergrouprole"
+			}
+		],
+		"menus": [
+			{
+				"text": "managedusers.menu",
+				"description": "managedusers.menu_desc",
+				"action": "home",
+				"parent": "components",
+				"permissions": "managedusers"
+			}
+		]
+	},
+	"dependencies": [{
+		"name": "php",
+		"version": ">=8.0"
+	},
+	{
+		"name": "modx",
+		"version": ">=2.6"
+	}],
+	"build": {
+		"readme": "docs/readme.md",
+		"license": "docs/license.md",
+		"changelog": "docs/changelog.md",
+		"resolver": {
+			"after": [
+				"resolve.permissions.php"
+			]
+		}
+	}
+}
