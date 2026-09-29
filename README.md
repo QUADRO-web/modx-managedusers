@@ -24,4 +24,4 @@ The package is built with [Git Package Management](https://github.com/TheBoxer/G
 php _build/install.permissions.php
 ```
 
-See [core/components/managedusers/docs/readme.md](core/components/managedusers/docs/readme.md) for the full documentation (German).
+See [core/components/managedusers/docs/readme.md](core/components/managedusers/docs/readme.md) for the full documentation.

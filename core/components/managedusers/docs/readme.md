@@ -1,46 +1,46 @@
 # ManagedUsers
 
-Custom Manager Page, über die Redakteure die Benutzer **einer bestimmten Benutzergruppe** anlegen und bearbeiten können – ohne Zugriff auf die übrigen Benutzer des CMS zu erhalten.
+Custom Manager Page that allows editors to create and edit the users of **one specific user group** – without having access to any other users of the CMS.
 
-## Funktionen
+## Features
 
-- Auflistung aller Benutzer der konfigurierten Benutzergruppe (mit Suche, Sortierung, Paging)
-- Bearbeiten von **Benutzername, Name, E-Mail, Passwort und Aktiv-Status** – andere Felder können nicht verändert werden
-- Benutzer aktivieren/deaktivieren (Status wird in der Übersicht angezeigt; das eigene Konto kann nicht deaktiviert werden)
-- Anlegen neuer Benutzer; diese werden automatisch der Benutzergruppe (mit der konfigurierten Rolle) zugewiesen
-- Passwort manuell setzen oder automatisch generieren lassen
+- List all users of the configured user group (with search, sorting and paging)
+- Edit **username, full name, email, password and active status** – no other fields can be changed
+- Activate/deactivate users (the status is shown in the overview; editors cannot deactivate their own account)
+- Create new users, which are automatically assigned to the user group (with the configured role)
+- Set a password manually or have one generated automatically
 
-## Systemeinstellungen
+## System Settings
 
-| Schlüssel | Beschreibung |
+| Key | Description |
 |---|---|
-| `managedusers.usergroup` | Die zu verwaltende Benutzergruppe (ID oder Name). Die Gruppe „Administrator“ ist nicht erlaubt. |
-| `managedusers.role` | Rolle, mit der neue Benutzer der Gruppe zugewiesen werden (Standard: `1` = Member). |
+| `managedusers.usergroup` | The user group to manage (ID or name). The "Administrator" group is not allowed. |
+| `managedusers.role` | The role new users get within the user group (default: `1` = Member). |
 
-## Berechtigung
+## Permissions
 
-Bei der Installation werden die Richtlinien-Vorlage **ManagedUsersTemplate** mit der Berechtigung `managedusers` und die Zugriffsrichtlinie **ManagedUsers** angelegt.
+On installation the access policy template **ManagedUsersTemplate** with the permission `managedusers` and the access policy **ManagedUsers** are created.
 
-Um einer Benutzergruppe (z. B. „Redakteure“) den Zugriff zu erlauben:
+To grant a user group (e.g. "Editors") access:
 
-1. *Benutzer → Zugriffsrechte → Benutzergruppe bearbeiten → Kontextzugriff*
-2. Kontext `mgr`, Rolle wie gewünscht, Zugriffsrichtlinie **ManagedUsers** hinzufügen
-3. *Zugriffsrechte leeren*
+1. *Users → Access Controls → edit the user group → Context Access*
+2. Add context `mgr`, a role of your choice and the access policy **ManagedUsers**
+3. *Flush permissions*
 
-Der Menüpunkt unter *Extras* wird nur Benutzern mit dieser Berechtigung angezeigt. Sudo-Benutzer haben immer Zugriff.
+The menu entry under *Extras* is only shown to users with this permission. Sudo users always have access.
 
-## Sicherheit
+## Security
 
-- Aufgelistet und bearbeitet werden nur Benutzer, die **ausschließlich** Mitglied der konfigurierten Gruppe und **keine** Sudo-Benutzer sind. Benutzer, die zusätzlich in anderen Gruppen sind (z. B. Administratoren), werden nicht angezeigt und können auch nicht über die Prozessoren verändert werden.
-- Die Prozessoren übernehmen nur die Felder `username`, `fullname`, `email`, `active` und das Passwort. Gruppen, Rollen, Sudo-Status usw. können darüber nicht gesetzt werden.
-- Die verwaltete Gruppe sollte **nicht** die Gruppe der Redakteure selbst sein, die die Benutzerverwaltung nutzen – sonst könnten sich diese gegenseitig die Passwörter ändern.
+- Only users which are members of the configured group **exclusively** and are **not** sudo users are listed and can be edited. Users who are also members of other groups (e.g. administrators) are not shown and cannot be modified via the processors either.
+- The processors only accept the fields `username`, `fullname`, `email`, `active` and the password. User groups, roles, sudo status etc. cannot be set through them.
+- The managed group should **not** be the group of the editors who use the user management themselves – otherwise they could change each other's passwords.
 
-## Entwicklung (Git Package Management)
+## Development (Git Package Management)
 
-GPM führt bei der Installation aus dem Repository keine Resolver aus. Die Berechtigung und Zugriffsrichtlinie für die Entwicklungsumgebung daher einmalig per CLI anlegen:
+GPM does not run resolvers when installing a package from the repository. Therefore create the permission and access policy for the development environment once via CLI:
 
 ```
 php _build/install.permissions.php
 ```
 
-Entfernen: `php _build/install.permissions.php uninstall`
+Remove: `php _build/install.permissions.php uninstall`
