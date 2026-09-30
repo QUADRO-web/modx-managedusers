@@ -3,7 +3,7 @@
 	"lowCaseName": "managedusers",
 	"description": "Manages Users of a specific user group.",
 	"author": "Jan Dähne",
-	"version": "1.0.0-pl",
+	"version": "1.0.1-pl",
 	"package": {
 		"elements": {},
 	    "systemSettings": [

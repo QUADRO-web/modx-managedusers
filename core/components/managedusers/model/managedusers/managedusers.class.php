@@ -123,7 +123,7 @@ class ManagedUsers
      * @param modUserGroup $group
      * @return bool
      */
-    public function isProtectedGroup(modUserGroup $group)
+    public function isProtectedGroup($group)
     {
         return (int) $group->get('id') === 1 || $group->get('name') === 'Administrator';
     }
@@ -156,7 +156,7 @@ class ManagedUsers
      * @param string $alias Alias of the modUser table
      * @return string
      */
-    public function getExclusiveMemberCondition(modUserGroup $group, $alias = 'modUser')
+    public function getExclusiveMemberCondition($group, $alias = 'modUser')
     {
         $table = $this->modx->getTableName('modUserGroupMember');
         $groupId = (int) $group->get('id');
@@ -173,7 +173,7 @@ class ManagedUsers
      * @param modUserGroup $group
      * @return bool
      */
-    public function isManagedUser(modUser $user, modUserGroup $group)
+    public function isManagedUser($user, $group)
     {
         if ($user->get('sudo')) {
             return false;
@@ -202,7 +202,7 @@ class ManagedUsers
      * @param array $data
      * @return array ['errors' => [field => message], 'password' => string|null, 'generated' => bool]
      */
-    public function validateUserData(modUser $user, modUserProfile $profile, array $data)
+    public function validateUserData($user, $profile, array $data)
     {
         $this->modx->lexicon->load('core:user');
 
