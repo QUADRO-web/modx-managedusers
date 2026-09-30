@@ -40,4 +40,16 @@ trait ManagedUsersProcessorTrait
         }
         return true;
     }
+
+    /**
+     * Log an unexpected error and return it as failure instead of an empty 500 response
+     *
+     * @param Throwable $e
+     * @return array|string
+     */
+    protected function handleException(Throwable $e)
+    {
+        $this->modx->log(xPDO::LOG_LEVEL_ERROR, '[ManagedUsers] ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+        return $this->failure($this->modx->lexicon('managedusers.err_save') . ' (' . $e->getMessage() . ')');
+    }
 }

@@ -21,6 +21,15 @@ class ManagedUsersUserCreateProcessor extends modProcessor
 
     public function process()
     {
+        try {
+            return $this->saveUser();
+        } catch (Throwable $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    protected function saveUser()
+    {
         /** @var modUser $user */
         $user = $this->modx->newObject('modUser');
         /** @var modUserProfile $profile */
@@ -48,7 +57,7 @@ class ManagedUsersUserCreateProcessor extends modProcessor
         $user->addMany($memberships, 'UserGroupMembers');
 
         $beforeSave = $this->modx->invokeEvent('OnBeforeUserFormSave', array(
-            'mode' => modSystemEvent::MODE_NEW,
+            'mode' => 'new',
             'user' => &$user,
             'id' => 0,
         ));
@@ -61,7 +70,7 @@ class ManagedUsersUserCreateProcessor extends modProcessor
         }
 
         $this->modx->invokeEvent('OnUserFormSave', array(
-            'mode' => modSystemEvent::MODE_NEW,
+            'mode' => 'new',
             'user' => &$user,
             'id' => $user->get('id'),
         ));

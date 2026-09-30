@@ -34,6 +34,15 @@ class ManagedUsersUserUpdateProcessor extends modProcessor
 
     public function process()
     {
+        try {
+            return $this->saveUser();
+        } catch (Throwable $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    protected function saveUser()
+    {
         /** @var modUserProfile $profile */
         $profile = $this->user->getOne('Profile');
         if (!$profile) {
@@ -50,7 +59,7 @@ class ManagedUsersUserUpdateProcessor extends modProcessor
         }
 
         $beforeSave = $this->modx->invokeEvent('OnBeforeUserFormSave', array(
-            'mode' => modSystemEvent::MODE_UPD,
+            'mode' => 'upd',
             'user' => &$this->user,
             'id' => $this->user->get('id'),
         ));
@@ -63,7 +72,7 @@ class ManagedUsersUserUpdateProcessor extends modProcessor
         }
 
         $this->modx->invokeEvent('OnUserFormSave', array(
-            'mode' => modSystemEvent::MODE_UPD,
+            'mode' => 'upd',
             'user' => &$this->user,
             'id' => $this->user->get('id'),
         ));
