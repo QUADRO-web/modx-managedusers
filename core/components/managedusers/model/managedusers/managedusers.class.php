@@ -19,6 +19,16 @@ class ManagedUsers
     const PERMISSION = 'managedusers';
 
     /**
+     * Profile fields which may be added to the window via "managedusers.profile_fields"
+     */
+    const PROFILE_FIELDS = array('comment', 'photo', 'website', 'phone', 'mobilephone', 'fax', 'address', 'city', 'zip', 'state', 'country');
+
+    /**
+     * Input types for the additional profile fields
+     */
+    const PROFILE_FIELD_XTYPES = array('textfield', 'textarea', 'modx-combo-browser');
+
+    /**
      * A reference to the modX instance
      * @var modX $modx
      */
@@ -35,6 +45,12 @@ class ManagedUsers
      * @var array $config
      */
     public $config = array();
+
+    /**
+     * The parsed additional profile fields
+     * @var array|null $profileFields
+     */
+    protected $profileFields = null;
 
     /**
      * ManagedUsers constructor
@@ -194,6 +210,132 @@ class ManagedUsers
     }
 
     /**
+     * Get the additional profile fields from the system setting "managedusers.profile_fields",
+     * a JSON array like [{"name": "comment", "label": "comment", "xtype": "textarea"}].
+     * "name" is a field of PROFILE_FIELDS or "extended.<key>" for an extended field. Invalid
+     * entries are skipped, so only these fields can be read and written via the processors.
+     *
+     * @return array List of fields with name, key (request/record key), extended key, xtype,
+     *               label, description and source
+     */
+    public function getProfileFields()
+    {
+        if ($this->profileFields !== null) {
+            return $this->profileFields;
+        }
+        $this->profileFields = array();
+
+        $setting = trim((string) $this->modx->getOption('managedusers.profile_fields', null, ''));
+        if ($setting === '') {
+            return $this->profileFields;
+        }
+        $fields = json_decode($setting, true);
+        if (!is_array($fields)) {
+            $this->modx->log(xPDO::LOG_LEVEL_ERROR, '[ManagedUsers] The system setting managedusers.profile_fields does not contain a valid JSON array.');
+            return $this->profileFields;
+        }
+
+        foreach ($fields as $field) {
+            $name = is_array($field) ? trim((string) ($field['name'] ?? '')) : '';
+            $extended = '';
+            if (preg_match('/^extended\.([a-zA-Z0-9_-]+)$/', $name, $match)) {
+                $extended = $match[1];
+            } elseif (!in_array($name, self::PROFILE_FIELDS, true)) {
+                $this->modx->log(xPDO::LOG_LEVEL_ERROR, '[ManagedUsers] The profile field "' . $name . '" in managedusers.profile_fields is not allowed.');
+                continue;
+            }
+
+            /* the key prefix keeps the fields apart from username, password etc. */
+            $key = 'profile_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
+            if (isset($this->profileFields[$key])) {
+                continue;
+            }
+
+            $xtype = (string) ($field['xtype'] ?? 'textfield');
+            $this->profileFields[$key] = array(
+                'name' => $name,
+                'key' => $key,
+                'extended' => $extended,
+                'xtype' => in_array($xtype, self::PROFILE_FIELD_XTYPES, true) ? $xtype : 'textfield',
+                'label' => (string) ($field['label'] ?? $name),
+                'description' => (string) ($field['description'] ?? ''),
+                'source' => (int) ($field['source'] ?? 0),
+            );
+        }
+
+        $this->profileFields = array_values($this->profileFields);
+        return $this->profileFields;
+    }
+
+    /**
+     * Profile columns needed to read the additional profile fields
+     *
+     * @return array
+     */
+    public function getProfileFieldColumns()
+    {
+        $columns = array();
+        foreach ($this->getProfileFields() as $field) {
+            $columns[] = $field['extended'] !== '' ? 'extended' : $field['name'];
+        }
+        return array_values(array_unique($columns));
+    }
+
+    /**
+     * Values of the additional profile fields, keyed by the request/record key
+     *
+     * @param array $profile Profile data with the columns of getProfileFieldColumns()
+     * @return array
+     */
+    public function getProfileFieldValues(array $profile)
+    {
+        $extended = $profile['extended'] ?? array();
+        if (is_string($extended)) {
+            $extended = json_decode($extended, true);
+        }
+        if (!is_array($extended)) {
+            $extended = array();
+        }
+
+        $values = array();
+        foreach ($this->getProfileFields() as $field) {
+            $value = $field['extended'] !== '' ? ($extended[$field['extended']] ?? '') : ($profile[$field['name']] ?? '');
+            $values[$field['key']] = is_scalar($value) ? (string) $value : '';
+        }
+        return $values;
+    }
+
+    /**
+     * Set the submitted additional profile fields on the profile. Fields which are not
+     * submitted keep their value.
+     *
+     * @param modUserProfile $profile
+     * @param array $data
+     */
+    public function setProfileFieldValues($profile, array $data)
+    {
+        $extended = null;
+        foreach ($this->getProfileFields() as $field) {
+            if (!array_key_exists($field['key'], $data)) {
+                continue;
+            }
+            $value = trim(strip_tags((string) $data[$field['key']]));
+            if ($field['extended'] !== '') {
+                if ($extended === null) {
+                    $extended = $profile->get('extended');
+                    $extended = is_array($extended) ? $extended : array();
+                }
+                $extended[$field['extended']] = $value;
+            } else {
+                $profile->set($field['name'], $value);
+            }
+        }
+        if ($extended !== null) {
+            $profile->set('extended', $extended);
+        }
+    }
+
+    /**
      * Validate username, fullname, email, active and password. Sets the values on the
      * user and profile objects.
      *
@@ -237,6 +379,9 @@ class ManagedUsers
         } else {
             $profile->set('email', $email);
         }
+
+        /* additional profile fields */
+        $this->setProfileFieldValues($profile, $data);
 
         /* active */
         if (array_key_exists('active', $data)) {

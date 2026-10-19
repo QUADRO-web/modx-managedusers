@@ -6,6 +6,7 @@ Custom Manager Page that allows editors to create and edit the users of **one sp
 
 - List all users of the configured user group (with search, sorting and paging)
 - Edit **username, full name, email, password and active status** – no other fields can be changed
+- Optionally edit additional profile fields such as comment or photo (see `managedusers.profile_fields`)
 - Activate/deactivate users (the status is shown in the overview; editors cannot deactivate their own account)
 - Create new users, which are automatically assigned to the user group (with the configured role)
 - Set a password manually or have one generated automatically
@@ -16,6 +17,29 @@ Custom Manager Page that allows editors to create and edit the users of **one sp
 |---|---|
 | `managedusers.usergroup` | The user group to manage (ID or name). The "Administrator" group is not allowed. |
 | `managedusers.role` | The role new users get within the user group (default: `1` = Member). |
+| `managedusers.profile_fields` | Additional profile fields in the create and update window as JSON (default: empty = none), see below. |
+
+### Additional profile fields
+
+`managedusers.profile_fields` contains a JSON array with one object per field. The fields are shown below the email address:
+
+```json
+[
+    {"name": "comment", "label": "comment", "xtype": "textarea"},
+    {"name": "extended.comment_en", "label": "Comment (English)", "xtype": "textarea"},
+    {"name": "photo", "label": "user_photo", "xtype": "modx-combo-browser"}
+]
+```
+
+| Key | Description |
+|---|---|
+| `name` | Required. One of the profile fields `comment`, `photo`, `website`, `phone`, `mobilephone`, `fax`, `address`, `city`, `zip`, `state`, `country` – or `extended.fieldname` for a field of the extended profile data (letters, numbers, `_` and `-`). |
+| `label` | Lexicon key or text (default: `name`). |
+| `description` | Optional help text below the field, lexicon key or text. |
+| `xtype` | `textfield` (default), `textarea` or `modx-combo-browser` for a file such as the photo. |
+| `source` | Media source ID for `modx-combo-browser` (default: `photo_profile_source` or `default_media_source`). |
+
+Invalid entries are skipped and logged to the error log.
 
 ## Permissions
 
@@ -32,7 +56,7 @@ The menu entry under *Extras* is only shown to users with this permission. Sudo 
 ## Security
 
 - Only users which are members of the configured group **exclusively** and are **not** sudo users are listed and can be edited. Users who are also members of other groups (e.g. administrators) are not shown and cannot be modified via the processors either.
-- The processors only accept the fields `username`, `fullname`, `email`, `active` and the password. User groups, roles, sudo status etc. cannot be set through them.
+- The processors only accept the fields `username`, `fullname`, `email`, `active`, the password and the profile fields configured in `managedusers.profile_fields` (limited to the profile fields listed above and extended fields, HTML tags are removed). User groups, roles, sudo status etc. cannot be set through them.
 - The managed group should **not** be the group of the editors who use the user management themselves – otherwise they could change each other's passwords.
 
 ## Development (Git Package Management)

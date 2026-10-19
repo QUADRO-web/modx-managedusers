@@ -2,8 +2,9 @@
 /**
  * Create a new user and assign the managed user group
  *
- * Only username, fullname, email and password are accepted. All other
- * properties of the request are ignored.
+ * Only username, fullname, email, password and the profile fields of
+ * "managedusers.profile_fields" are accepted. All other properties of the
+ * request are ignored.
  *
  * @package managedusers
  * @subpackage processors

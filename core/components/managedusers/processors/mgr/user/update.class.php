@@ -1,6 +1,7 @@
 <?php
 /**
- * Update username, fullname, email and password of a managed user
+ * Update username, fullname, email, password and the profile fields of
+ * "managedusers.profile_fields" of a managed user
  *
  * Only users which belong exclusively to the managed user group (and are not
  * sudo users) can be updated. All other properties of the request are ignored.

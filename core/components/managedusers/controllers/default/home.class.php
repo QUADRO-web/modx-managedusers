@@ -46,11 +46,24 @@ class ManagedusersHomeManagerController extends modExtraManagerController
         $this->addLastJavascript($jsUrl . 'widgets/home.panel.js');
         $this->addLastJavascript($jsUrl . 'sections/home.js');
 
+        /* additional profile fields with translated label and description */
+        $profileFields = array();
+        foreach ($this->managedusers->getProfileFields() as $field) {
+            $profileFields[] = array(
+                'key' => $field['key'],
+                'xtype' => $field['xtype'],
+                'label' => $this->modx->lexicon($field['label']),
+                'description' => $field['description'] !== '' ? $this->modx->lexicon($field['description']) : '',
+                'source' => $field['source'],
+            );
+        }
+
         $group = $this->managedusers->getUserGroup();
         $config = array(
             'connectorUrl' => $this->managedusers->getOption('connectorUrl'),
             'usergroup' => $group ? $group->get('name') : '',
             'passwordMinLength' => (int) $this->modx->getOption('password_min_length', null, 8, true),
+            'profileFields' => $profileFields,
         );
 
         $this->addHtml('<script type="text/javascript">

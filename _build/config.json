@@ -18,6 +18,12 @@
 				"area": "system",
 				"value": "1",
 				"type": "modx-combo-usergrouprole"
+			},
+			{
+				"key": "profile_fields",
+				"area": "system",
+				"value": "",
+				"type": "textarea"
 			}
 		],
 		"menus": [

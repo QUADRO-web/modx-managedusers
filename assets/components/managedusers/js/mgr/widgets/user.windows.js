@@ -4,6 +4,35 @@ ManagedUsers.window.User = function (config) {
 
     var isUpdate = config.isUpdate === true;
 
+    /* additional profile fields from the system setting managedusers.profile_fields */
+    var profileFields = [];
+    Ext.each(ManagedUsers.config.profileFields || [], function (field) {
+        var item = {
+            xtype: field.xtype
+            ,fieldLabel: field.label
+            ,name: field.key
+            ,id: this.ident + '-' + field.key
+            ,anchor: '100%'
+        };
+        if (field.xtype === 'textarea') {
+            item.height = 100;
+        }
+        if (field.xtype === 'modx-combo-browser') {
+            item.source = field.source || MODx.config.photo_profile_source || MODx.config.default_media_source;
+            item.hideFiles = true;
+            item.hideSourceCombo = true;
+        }
+        profileFields.push(item);
+        if (field.description) {
+            profileFields.push({
+                xtype: MODx.expandHelp ? 'label' : 'hidden'
+                ,forId: item.id
+                ,html: field.description
+                ,cls: 'desc-under'
+            });
+        }
+    }, this);
+
     Ext.applyIf(config, {
         title: isUpdate ? _('managedusers.user_update') : _('managedusers.user_create')
         ,url: ManagedUsers.config.connectorUrl
@@ -45,7 +74,7 @@ ManagedUsers.window.User = function (config) {
             ,vtype: 'email'
             ,maxLength: 255
             ,autoCreate: {tag: 'input', type: 'text', autocomplete: 'off'}
-        },{
+        }].concat(profileFields, [{
             xtype: 'xcheckbox'
             ,boxLabel: _('active')
             ,name: 'active'
@@ -91,7 +120,7 @@ ManagedUsers.window.User = function (config) {
             ,id: this.ident + '-password-confirm'
             ,anchor: '100%'
             ,autoCreate: {tag: 'input', type: 'password', autocomplete: 'new-password'}
-        }]
+        }])
         ,keys: [{
             key: Ext.EventObject.ENTER
             ,shift: true

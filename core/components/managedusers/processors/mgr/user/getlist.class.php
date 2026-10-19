@@ -64,19 +64,27 @@ class ManagedUsersUserGetListProcessor extends modObjectGetListProcessor
     public function prepareQueryAfterCount(xPDOQuery $c)
     {
         $c->select($this->modx->getSelectColumns('modUser', 'modUser', '', array('id', 'username', 'active')));
-        $c->select($this->modx->getSelectColumns('modUserProfile', 'Profile', '', array('fullname', 'email')));
+        $c->select($this->modx->getSelectColumns('modUserProfile', 'Profile', '', array_merge(
+            array('fullname', 'email'),
+            $this->managedusers->getProfileFieldColumns()
+        )));
         return $c;
     }
 
     public function prepareRow(xPDOObject $object)
     {
-        return array(
+        $profile = array();
+        foreach ($this->managedusers->getProfileFieldColumns() as $column) {
+            $profile[$column] = $object->get($column);
+        }
+
+        return array_merge(array(
             'id' => (int) $object->get('id'),
             'username' => $object->get('username'),
             'fullname' => $object->get('fullname'),
             'email' => $object->get('email'),
             'active' => (bool) $object->get('active'),
-        );
+        ), $this->managedusers->getProfileFieldValues($profile));
     }
 }
 

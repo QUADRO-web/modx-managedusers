@@ -6,7 +6,7 @@ ManagedUsers.grid.Users = function (config) {
         ,baseParams: {
             action: 'mgr/user/getlist'
         }
-        ,fields: ['id', 'username', 'fullname', 'email', 'active']
+        ,fields: ['id', 'username', 'fullname', 'email', 'active'].concat(Ext.pluck(ManagedUsers.config.profileFields || [], 'key'))
         ,paging: true
         ,remoteSort: true
         ,autoExpandColumn: 'email'

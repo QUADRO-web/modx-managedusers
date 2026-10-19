@@ -5,12 +5,14 @@ Custom Manager Page for MODX Revolution 2.x which allows editors to create and e
 ## Features
 - List all users of the configured user group (search, sorting, paging)
 - Edit username, full name, email, password and active status – nothing else
+- Optionally edit additional profile fields such as comment or photo
 - Create new users, which are automatically assigned to the user group with the configured role
 - Set a password manually or generate one
 
 ## Settings
 - `managedusers.usergroup` – the user group to manage (the "Administrator" group is not allowed)
 - `managedusers.role` – the role new users get within the user group (default: Member)
+- `managedusers.profile_fields` – additional profile fields in the create and update window as JSON, e.g. `[{"name": "comment", "label": "comment", "xtype": "textarea"}, {"name": "photo", "label": "user_photo", "xtype": "modx-combo-browser"}]`
 
 ## Permissions
 On install the access policy **ManagedUsers** (permission `managedusers`) is created. Assign it to the editors' user group via *Access Controls → User Group → Context Access* for the `mgr` context and flush permissions.
